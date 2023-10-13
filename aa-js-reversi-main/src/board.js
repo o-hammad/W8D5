@@ -87,6 +87,14 @@ Board.prototype.isMine = function (pos, color) {
  * Checks if a given position has a piece on it.
  */
 Board.prototype.isOccupied = function (pos) {
+  let x = pos[0];
+  let y = pos[1];
+
+  if(this.grid[x][y] === undefined){
+    return false;
+  } else {
+    return true;
+  }
 };
 
 /**
@@ -103,7 +111,37 @@ Board.prototype.isOccupied = function (pos) {
  * Returns empty array if no pieces of the opposite color are found.
  */
 Board.prototype._positionsToFlip = function (pos, color, dir, piecesToFlip) {
-}
+  // Check if the starting position is on the board
+  if (!this.isValidPos(pos)) {
+    return [];
+  }
+
+  // Initialize piecesToFlip array if not provided
+  if (!piecesToFlip) {
+    piecesToFlip = [];
+  }
+
+  // Calculate the next position in the given direction
+  const nextPos = [pos[0] + dir[0], pos[1] + dir[1]];
+
+  // Get the piece at the next position
+  const nextPiece = this.getPiece(nextPos);
+
+  // If the next position is empty or has the same color, return an empty array
+  if (!nextPiece || this.isMine(nextPos, color)) {
+    return [];
+  }
+
+  // Add the next position to the piecesToFlip array
+  piecesToFlip.push(nextPos);
+
+  // Recursively call _positionsToFlip with the updated position
+  const result = this._positionsToFlip(nextPos, color, dir, piecesToFlip);
+
+  // If the result is an empty array, no piece of the same color was found on the other end, so return an empty array
+  return result.length === 0 ? [] : result;
+};
+
 
 /**
  * Checks that a position is not already occupied and that the color
